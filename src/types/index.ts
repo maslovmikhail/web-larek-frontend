@@ -1,11 +1,11 @@
 // Карточка товара
 export interface IProductItem {
-  id: string;
-  description: string;
-  image: string;
-  title: string;
-  category: string;
-  price: number;
+	id: string;
+	description: string;
+	image: string;
+	title: string;
+	category: string;
+	price: number | null;
 }
 
 // Отображение корзины
@@ -17,16 +17,18 @@ export interface IBasketView {
 
 // Адрес доставки
 export interface IOrderForm {
-  address: string;
+	payment: 'online' | 'offline';
+	address: string;
 }
 
 // Контакты покупателя
 export interface IContactsForm {
-  email: string;
-  phone: string;
+	email: string;
+	phone: string;
 }
 
 // Оформление заказа
 export interface ISuccess {
-  total: number;
+	id: string;
+	total: number;
 }
