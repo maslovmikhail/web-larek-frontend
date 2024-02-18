@@ -254,7 +254,6 @@ interface ISuccess {
 - set price(value: number | null) - установить цену товара.
 - set buttonText(status: string) - установить текст кнопки в карточке товара.
 - set description(value: string) - установить описание товара.
-
 - get id(): string - получить id товара.
 - get title(): string - получить название товара.
 
