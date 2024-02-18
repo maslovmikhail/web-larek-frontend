@@ -49,7 +49,7 @@ yarn build
 
 # Основные типы данных
 
-- Интерфейс IPage.
+## Интерфейс IPage.
 
 Описывает действия на главной странице.
 
@@ -61,7 +61,7 @@ interface IPage {
 
 ```
 
-- Интерфейс IProductItem.
+## Интерфейс IProductItem.
 
 Описывает детальную информацию о товаре.
 
@@ -77,7 +77,7 @@ interface IProductItem {
 
 ```
 
-- Интерфейс ICardActions.
+## Интерфейс ICardActions.
 
 Описывает действия выполняемые с карточкой товара.
 
@@ -88,7 +88,7 @@ interface ICardActions {
 
 ```
 
-- Интерфейс ICard.
+## Интерфейс ICard.
 
 Описывает карточку товара.
 
@@ -106,7 +106,7 @@ interface ICard {
 
 ```
 
-Интерфейс IModalData.
+## Интерфейс IModalData.
 
 Описывает содержание модального окна.
 
@@ -117,7 +117,7 @@ export interface IModalData {
 
 ```
 
-- Интерфейс IBasketView.
+## Интерфейс IBasketView.
 
 Описывает содержимое корзины.
 
@@ -130,7 +130,7 @@ interface IBasketView {
 
 ```
 
-- Интерфейс IFormState.
+## Интерфейс IFormState.
 
 Описывает состояние полей формы
 
@@ -142,7 +142,7 @@ interface IFormState {
 
 ```
 
-- Интерфейс IOrderForm.
+## Интерфейс IOrderForm.
 
 Описывает адрес доставки.
 
@@ -154,7 +154,7 @@ interface IOrderForm {
 
 ```
 
-- Интерфейс IOrder расширяет интерфейс IOrderForm.
+## Интерфейс IOrder расширяет интерфейс IOrderForm.
 
 ```
 
@@ -164,7 +164,7 @@ interface IOrder extends IOrderForm {
 
 ```
 
-- Интерфейс IContactsForm.
+## Интерфейс IContactsForm.
 
 Описывает контакты покупателя.
 
@@ -176,7 +176,7 @@ interface IContactsForm {
 
 ```
 
-- Интерфейс IContacts расширяет интерфейс IContactsForm.
+## Интерфейс IContacts расширяет интерфейс IContactsForm.
 
 ```
 interface IContacts extends IContactsForm {
@@ -185,7 +185,7 @@ interface IContacts extends IContactsForm {
 
 ```
 
-- Интерфейс ISuccess.
+## Интерфейс ISuccess.
 
 Описывает завершение заказа.
 
@@ -199,7 +199,7 @@ interface ISuccess {
 
 # Базовый код
 
-- Абстрактный класс Model<T>
+## Класс Model<T>
 
 Абстрактный базовый класс, для управления данными и их взаимодействия с системой событий. 
 
@@ -209,7 +209,7 @@ interface ISuccess {
 
 - emitChanges(event: string, payload?: object) - cообщить всем что модель поменялась.
 
-- Component<T>
+## Класс Component<T>
 
 Абстрактный базовый класс, предоставляет инструментарий для работы с DOM в дочерних компонентах. Содержит методы:
 
@@ -221,7 +221,7 @@ interface ISuccess {
 - setImage(element: HTMLImageElement, src: string, alt?: string) - установить изображение с алтернативным текстом.
 - render(data?: Partial<T>): HTMLElement - вернуть корневой DOM-элемент.
 
-- Класс EventEmitter
+## Класс EventEmitter
 
 Базовый класс, центральный брокер событий. Позволяет компонентам подписываться на события и реагировать на них. Содержит методы:
 
@@ -232,7 +232,7 @@ interface ISuccess {
 - offAll() - сбросить все обработчики.
 - trigger<T extends object>(eventName: string, context?: Partial<T>) - сделать коллбек триггер, генерирующий событие при вызове.
 
-- Класс Api
+## Класс Api
 
 Базовый класс - клиент для взаимодействия с внешними API и сервером. Содержит методы:
 
@@ -242,7 +242,7 @@ interface ISuccess {
 
 # View - компоненты представления
 
-- Класс Card
+## Класс Card
 
 Класс для создания карточки товара. Наследует класс Component. Содержит сеттеры и геттеры:
 
@@ -257,11 +257,11 @@ interface ISuccess {
 - get id(): string - получить id товара.
 - get title(): string - получить название товара.
 
-- Класс CatalogItem
+## Класс CatalogItem
 
 Класс отображения отдельной карточки товара в каталоге на главной странице, в модальном окне и в списке корзины. Наследует класс Card.
 
-- Класс Form<T>
+## Класс Form<T>
 
 Класс для управления формами. Наследует класс Component. Содержит методы:
 
@@ -274,7 +274,7 @@ interface ISuccess {
 - set valid(value: boolean) - установить валидацию полей.
 - set errors(value: string) - установить вывод информации об ошибках.
 
-- Класс Order
+## Класс Order
 
 Класс предназначен для выбора способа оплаты и ввода адреса доставки. Наследует класс Form. Содержит метод: 
 
@@ -284,14 +284,14 @@ interface ISuccess {
 
 - set address(value: string) - адрес доставки.
 
-- Класс Contacts
+## Класс Contacts
 
 Класс предназначен для управления формой контактных данных пользователя. Наследует класс Form. Содержит сеттеры:
 
 - set phone(value: string) - телефон пользователя
 - set email(value: string) - эл. почта пользователя.
 
-- Класс Page
+## Класс Page
 
 Класс управления элементами интерфейса главной страницы. Наследует базовый класс Component. Содержит сеттеры:
 
@@ -299,7 +299,7 @@ interface ISuccess {
 - set catalog(items: HTMLElement[]) - вывести каталог товаров.
 - set locked(value: boolean) - установить или снять блокировку прокрутки страницы.
 
-- Класс Basket
+## Класс Basket
 
 Класс управляет отображением корзины. Наследует класс Component. Содержит сеттеры:
 
@@ -307,7 +307,7 @@ interface ISuccess {
 - set selected(items: ProductItem[]) - установить наличие товаров в корзине.
 - set total(total: number | string) - установить общую сумму товаров в корзине.
 
-- Класс Modal
+## Класс Modal
 
 Класс управления поведением модальных окон. Наследует класс Component. Содержит сеттер:
 
@@ -319,7 +319,7 @@ interface ISuccess {
 - close() - закрыть окно.
 - render(data: IModalData): HTMLElement - вывести данные.
 
-- Класс Success
+## Класс Success
 
 Класс отображения успешного завершения процесса оплаты. 
 
@@ -328,7 +328,7 @@ interface ISuccess {
 
 # Model - компоненты данных
 
-- Класс ProductItem
+## Класс ProductItem
 
 Наследует класс Model. Реализует экземпляр товара.
 
@@ -347,7 +347,7 @@ class ProductItem extends Model<IProductItem> {
 
 ```
 
-- Класс AppState
+## Класс AppState
 
 Центральный класс для управления данными и событиями. Наследует класс ProductItem. Содержит методы:
 
@@ -362,7 +362,7 @@ class ProductItem extends Model<IProductItem> {
 - toggleBasketList(item: ProductItem) - удалить или добавить товар в список корзины.
 - getBasketList(): ProductItem[] - получить список корзины.
 
-- Класс WebLarekAPI.
+## Класс WebLarekAPI.
 
 Класс для связи и получения информации с сервера. Наследует базовый класс Api.
 
