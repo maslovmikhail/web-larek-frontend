@@ -240,6 +240,7 @@ interface ISuccess {
 - get(uri: string) - получить ответ с сервера.
 - post(uri: string, data: object, method: ApiPostMethods = 'POST') - отправить данные на сервер.
 
+
 # View - компоненты представления
 
 ## Класс Card
