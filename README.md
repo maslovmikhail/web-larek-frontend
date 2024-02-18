@@ -49,175 +49,326 @@ yarn build
 
 # Основные типы данных
 
-## Интерфейс IProductItem
+- Интерфейс IPage.
+
+Описывает действия на главной странице.
+
+```
+interface IPage {
+	catalog: HTMLElement[];
+	locked: boolean;
+}
+
+```
+
+- Интерфейс IProductItem.
 
 Описывает детальную информацию о товаре.
 
-## Интерфейс IBasketView
+```
+interface IProductItem {
+  id: string;
+  description: string;
+  image: string;
+  title: string;
+  category: string;
+  price: number | null;
+}
+
+```
+
+- Интерфейс ICardActions.
+
+Описывает действия выполняемые с карточкой товара.
+
+```
+interface ICardActions {
+	onClick: (event: MouseEvent) => void;
+}
+
+```
+
+- Интерфейс ICard.
+
+Описывает карточку товара.
+
+```
+interface ICard {
+	id: string;
+	description: string;
+	image: string;
+	title: string;
+	category: string;
+	price: number | null;
+	buttonText: string;
+	itemCount: number | null;
+}
+
+```
+
+Интерфейс IModalData.
+
+Описывает содержание модального окна.
+
+```
+export interface IModalData {
+	content: HTMLElement;
+}
+
+```
+
+- Интерфейс IBasketView.
 
 Описывает содержимое корзины.
 
-## Интерфейс IOrderForm
+```
+interface IBasketView {
+	items: HTMLElement[];
+	total: number | string;
+	selected: string[];
+}
+
+```
+
+- Интерфейс IFormState.
+
+Описывает состояние полей формы
+
+```
+interface IFormState {
+	valid: boolean;
+	errors: string[];
+}
+
+```
+
+- Интерфейс IOrderForm.
 
 Описывает адрес доставки.
 
-## Интерфейс IContactsForm
+```
+interface IOrderForm {
+  payment: string;
+  address: string;
+}
+
+```
+
+- Интерфейс IOrder расширяет интерфейс IOrderForm.
+
+```
+
+interface IOrder extends IOrderForm {
+	items: IProductItem[];
+}
+
+```
+
+- Интерфейс IContactsForm.
 
 Описывает контакты покупателя.
 
-## Интерфейс ISuccess
+```
+interface IContactsForm {
+	email: string;
+	phone: string;
+}
+
+```
+
+- Интерфейс IContacts расширяет интерфейс IContactsForm.
+
+```
+interface IContacts extends IContactsForm {
+	items: string[];
+}
+
+```
+
+- Интерфейс ISuccess.
 
 Описывает завершение заказа.
 
+```
+interface ISuccess {
+  id: string;
+  total: number;
+}
+
+```
+
 # Базовый код
 
-## Абстрактный класс Model
+- Абстрактный класс Model<T>
 
-Базовая модель, чтобы можно было отличить ее от простых объектов с данными. Содержит метод:
+Абстрактный базовый класс, для управления данными и их взаимодействия с системой событий. 
 
-- emitChanges() - cообщить всем что модель поменялась.
+- isModel - функция для проверки на модель.
 
-## Абстрактный класс Component<T>
+Содержит метод:
 
-Базовый компонент. Содержит методы:
+- emitChanges(event: string, payload?: object) - cообщить всем что модель поменялась.
 
-- toggleClass() - переключить класс.
-- setDisabled() - сменить статус блокировки.
-- setHidden() - скрыть.
-- setVisible() - показать.
-- setImage() - установить изображение с алтернативным текстом.
-- render() - вернуть корневой DOM-элемент.
+- Component<T>
 
-## Класс EventEmitter
+Абстрактный базовый класс, предоставляет инструментарий для работы с DOM в дочерних компонентах. Содержит методы:
 
-Брокер событий. Содержит методы:
+- toggleClass(element: HTMLElement, className: string, force?: boolean) - переключить класс.
+- setText(element: HTMLElement, value: unknown) - установить текстовое содержимое.
+- setDisabled(element: HTMLElement, state: boolean) - сменить статус блокировки.
+- setHidden(element: HTMLElement) - скрыть элемент.
+- setVisible(element: HTMLElement) - показать элемент.
+- setImage(element: HTMLImageElement, src: string, alt?: string) - установить изображение с алтернативным текстом.
+- render(data?: Partial<T>): HTMLElement - вернуть корневой DOM-элемент.
 
-- on() - установить обработчик на событие.
-- off() - снять обработчик с события.
-- emit() - инициировать событие с данными.
-- onAll() - слушать все события.
+- Класс EventEmitter
+
+Базовый класс, центральный брокер событий. Позволяет компонентам подписываться на события и реагировать на них. Содержит методы:
+
+- on<T extends object>(eventName: EventName, callback: (event: T) => void) - установить обработчик на событие.
+- off(eventName: EventName, callback: Subscriber) - снять обработчик с события.
+- emit<T extends object>(eventName: string, data?: T) - инициировать событие с данными.
+- onAll(callback: (event: EmitterEvent) => void) - слушать все события.
 - offAll() - сбросить все обработчики.
-- trigger() - сделать коллбек триггер, генерирующий событие при вызове
+- trigger<T extends object>(eventName: string, context?: Partial<T>) - сделать коллбек триггер, генерирующий событие при вызове.
 
-## Класс Api
+- Класс Api
 
-Класс - клиент API для взаимодействия с сервером. Содержит методы:
+Базовый класс - клиент для взаимодействия с внешними API и сервером. Содержит методы:
 
-- handleResponse() - обработчик ответа с сервера.
-- get() - получить ответ с сервера.
-- post() - отправить данные на сервер.
+- handleResponse(response: Response): Promise<object> - обработчик ответа с сервера.
+- get(uri: string) - получить ответ с сервера.
+- post(uri: string, data: object, method: ApiPostMethods = 'POST') - отправить данные на сервер.
 
 # View - компоненты представления
 
-## Класс Card
+- Класс Card
 
-Класс отображения карточки товара.
+Класс для создания карточки товара. Наследует класс Component. Содержит сеттеры и геттеры:
 
-- set id() - установить id товара.
-- set title() - установить название товара.
-- set image() - установить url изображения товара.
-- set category() - установить категорию товара.
-- set price() - установить цену товара.
-- set buttonText() - установить текст кнопки в карточке товара.
-- set description() - установить описание товара.
+- set id(value: string) - установить id товара.
+- set title(value: string) - установить название товара.
+- set image(value: string) - установить url изображения товара.
+- set category(value: string) - установить категорию товара.
+- set price(value: number | null) - установить цену товара.
+- set buttonText(status: string) - установить текст кнопки в карточке товара.
+- set description(value: string) - установить описание товара.
 
-- get id() - получить id товара.
-- get title() - получить название товара.
+- get id(): string - получить id товара.
+- get title(): string - получить название товара.
 
-## Класс CatalogItem
+- Класс CatalogItem
 
-Класс отображения карточки товара в каталоге на главной странице.
+Класс отображения отдельной карточки товара в каталоге на главной странице, в модальном окне и в списке корзины. Наследует класс Card.
 
-## Класс PreviewItem
+- Класс Form<T>
 
-Класс отображения карточки товара в модальном окне.
+Класс для управления формами. Наследует класс Component. Содержит методы:
 
-## Класс BasketItem
+- onInputChange(field: keyof T, value: string) - вызывается при изменении значений полей формы.
 
-Класс отображения отдельного товара в корзине.
+- render(state: Partial<T> & IFormState) - возвращает форму с новым состоянием.
 
-## Класс Form
+Сеттеры:
 
-Класс отображения формы
+- set valid(value: boolean) - установить валидацию полей.
+- set errors(value: string) - установить вывод информации об ошибках.
 
-- set valid() - установить валидацию полей.
-- set errors() - установить вывод информации об ошибках.
+- Класс Order
 
-## Класс Order
+Класс предназначен для выбора способа оплаты и ввода адреса доставки. Наследует класс Form. Содержит метод: 
 
-Класс отображения формы заказа.
+- selectPaymentMethod(name: HTMLElement) - выбрать способ оплаты.
 
-- set payment() - способ оплаты.
-- set address() - адрес покупателя.
+Сеттер:
 
-## Класс Contacts
+- set address(value: string) - адрес доставки.
 
-Класс отображения формы контактов.
+- Класс Contacts
 
-- set phone() - телефон покупателя
-- set email() - эл. почта покупателя.
+Класс предназначен для управления формой контактных данных пользователя. Наследует класс Form. Содержит сеттеры:
 
-## Класс Page
+- set phone(value: string) - телефон пользователя
+- set email(value: string) - эл. почта пользователя.
 
-Класс отображения главной страницы.
+- Класс Page
 
-- set counter() - счётчик количества товаров в корзине.
-- set catalog() - установить каталог товаров.
-- set locked() - установить или снять блокировку прокрутки страницы.
+Класс управления элементами интерфейса главной страницы. Наследует базовый класс Component. Содержит сеттеры:
 
-## Класс Basket
+- set counter(value: number | null) - обновить счётчик количества товаров в корзине.
+- set catalog(items: HTMLElement[]) - вывести каталог товаров.
+- set locked(value: boolean) - установить или снять блокировку прокрутки страницы.
 
-Класс отображения корзины.
+- Класс Basket
 
-- set items() - вставить данные в корзину.
-- set selected() - установить наличие товаров в корзине
-- set total() - установить общую сумму.
+Класс управляет отображением корзины. Наследует класс Component. Содержит сеттеры:
 
-## Класс Modal
+- set items(items: HTMLElement[]) - вставить данные в корзину.
+- set selected(items: ProductItem[]) - установить наличие товаров в корзине.
+- set total(total: number | string) - установить общую сумму товаров в корзине.
 
-Класс отображения модального окна.
+- Класс Modal
+
+Класс управления поведением модальных окон. Наследует класс Component. Содержит сеттер:
+
+- set content(value: HTMLElement) - установить содержимое модального окна.
+
+Методы:
 
 - open() - открыть окно.
 - close() - закрыть окно.
-- render() - вывести данные.
+- render(data: IModalData): HTMLElement - вывести данные.
 
-## Класс Success
+- Класс Success
 
-Класс отображения завершения процесса оплаты.
+Класс отображения успешного завершения процесса оплаты. 
 
-- set id () - id заказа.
-- set total() - отобразить общую сумму товаров.
+- set id() - id заказа.
+- set total(total: number | string) - отобразить общую сумму товаров.
 
 # Model - компоненты данных
 
-## Класс ProductItem
+- Класс ProductItem
 
-Реализует экземпляр товара.
+Наследует класс Model. Реализует экземпляр товара.
 
-## Класс AppState
+```
 
-Реализует методы для работы с данными:
+class ProductItem extends Model<IProductItem> {
+	id: string;
+	description: string;
+	image: string;
+	title: string;
+	category: string;
+	price: number | null;
+	status: ProductStatus = 'sell';
+	itemCount: number = 0;
+}
+
+```
+
+- Класс AppState
+
+Центральный класс для управления данными и событиями. Наследует класс ProductItem. Содержит методы:
 
 - clearBasket() - очистить корзину.
 - getTotal() - получить общую сумму заказа.
-- setCatalog() - кполучить список товаров.
-- setPreview() - получить детальную информацию о товаре.
-- setOrderField() - отслеживать изменения полей заказа.
+- setCatalog(items: IProductItem[]) - установить список товаров.
+- setPreview(item: IProductItem) - установить детальную информацию о товаре.
+- setOrderField(field: keyof IOrderForm, value: string) - отслеживать изменения полей заказа.
 - validateOrder() - валидация полей заказа.
-- setContactsField() - отслеживать изменения полей контактной информации.
+- setContactsField(field: keyof IContactsForm, value: string) - отслеживать изменения полей контактной информации.
 - validateContacts() - валидация полей контактной информации.
-- addBasketList() - добавить товар в список корзины.
-- getBasketList() - получить список товаров в корзине.
-- removeItem() удалить товар из корзины.
+- toggleBasketList(item: ProductItem) - удалить или добавить товар в список корзины.
+- getBasketList(): ProductItem[] - получить список корзины.
 
-## Класс WebLarekAPI
+- Класс WebLarekAPI.
 
-Класс для связи и получения информации с сервера.
+Класс для связи и получения информации с сервера. Наследует базовый класс Api.
 
-Содержит методы:
+Содержит метод:
 
-- getProductItem() - получить детальную информацию о товаре с сервера.
-- getProductList() - получить список товаров с сервера.
+- getProductList(): Promise<IProductItem[]> - получить список товаров с сервера.
 
 # Presenter
 
