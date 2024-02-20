@@ -131,6 +131,7 @@ events.on('basket:changed', (items: ProductItem[]) => {
 			price: item.price,
 		});
 	});
+	appData.order.total = appData.getTotal();
 	basket.total = appData.getTotal();
 });
 
