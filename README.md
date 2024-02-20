@@ -235,6 +235,9 @@ interface ISuccess {
 - get(uri: string) - получить ответ с сервера.
 - post(uri: string, data: object, method: ApiPostMethods = 'POST') - отправить данные на сервер.
 
+
+
+
 # View - компоненты представления
 
 ## Класс Card
@@ -366,19 +369,20 @@ class ProductItem extends Model<IProductItem> {
 
 Код описывающий взаимодействие отображения и данных между собой находится в файле src/index.ts.
 
-// Список основных событий
-catalog:install - вывод каталога товаров на главную страницу.
-card:select - выбор карточки из каталога.
-item:toggle - удаление / добавление товара в корзину.
-modal:open - открытие модального окна.
-modal:close - закрытие модального окна.
-basket:open - открытие корзины.
-basket:changed - изменение состояния корзины.
-order:open - открытие формы заказа.
-payment:toggle - смена способа оплаты.
-/^order\.._:change/ - изменение поля формы заказа.
-formErrorsOrder:change - изменилось состояние валидации формы заказа.
-order:submit - отправка формы доставки.
-/^contacts\.[^:]_:change/ - изменилось одно из полей формы контактов.
-formErrorsContacts:change - изменилось состояние валидации формы контактов.
-contacts:submit - завершения оплаты.
+Список основных событий:
+
+- catalog:install - вывод каталога товаров на главную страницу.
+- card:select - выбор карточки из каталога.
+- item:toggle - удаление / добавление товара в корзину.
+- modal:open - открытие модального окна.
+- modal:close - закрытие модального окна.
+- basket:open - открытие корзины.
+- basket:changed - изменение состояния корзины.
+- order:open - открытие формы заказа.
+- payment:toggle - смена способа оплаты.
+- /^order\.._:change/ - изменение поля формы заказа.
+- formErrorsOrder:change - изменилось состояние валидации формы заказа.
+- order:submit - отправка формы доставки.
+- /^contacts\.[^:]_:change/ - изменилось одно из полей формы контактов.
+- formErrorsContacts:change - изменилось состояние валидации формы контактов.
+- contacts:submit - завершения оплаты.
