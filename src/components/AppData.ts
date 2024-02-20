@@ -1,5 +1,6 @@
 import {
-	IContacts,
+	FormErrorsContacts,
+	FormErrorsOrder,
 	IContactsForm,
 	IOrder,
 	IOrderForm,
@@ -7,10 +8,11 @@ import {
 } from '../types';
 import { Model } from './base/Models';
 
-export type ProductStatus = 'basket' | 'sell';
+export type CatalogChangeEvent = {
+	catalog: ProductItem[];
+};
 
-export type FormErrorsOrder = Partial<Record<keyof IOrder, string>>;
-export type FormErrorsContacts = Partial<Record<keyof IContacts, string>>;
+export type ProductStatus = 'basket' | 'sell';
 
 export class ProductItem extends Model<IProductItem> {
 	id: string;
@@ -20,7 +22,7 @@ export class ProductItem extends Model<IProductItem> {
 	category: string;
 	price: number | null;
 	status: ProductStatus = 'sell';
-	itemCount: number = 0;
+	itemCount: number;
 }
 
 export class AppState extends ProductItem {
@@ -29,14 +31,12 @@ export class AppState extends ProductItem {
 	order: IOrder = {
 		address: '',
 		items: [],
-		payment: '',
-	};
-	contacts: IContacts = {
+		payment: 'online',
 		email: '',
 		phone: '',
-		items: [],
+		total: 0,
 	};
-	preview: string | null;
+
 	formErrorsOrder: FormErrorsOrder = {};
 	formErrorsContacts: FormErrorsContacts = {};
 
@@ -48,17 +48,12 @@ export class AppState extends ProductItem {
 	}
 
 	getTotal() {
-		return this.basketList.reduce((a, c) => a + c.price, 0) + ' синапсов';
+		return this.basketList.reduce((a, c) => a + c.price, 0);
 	}
 
 	setCatalog(items: IProductItem[]) {
 		this.catalog = items.map((item) => new ProductItem(item, this.events));
 		this.emitChanges('catalog:install', { catalog: this.catalog });
-	}
-
-	setPreview(item: IProductItem) {
-		this.preview = item.id;
-		this.emitChanges('card:select', item);
 	}
 
 	setOrderField(field: keyof IOrderForm, value: string) {
@@ -82,19 +77,19 @@ export class AppState extends ProductItem {
 	}
 
 	setContactsField(field: keyof IContactsForm, value: string) {
-		this.contacts[field] = value;
+		this.order[field] = value;
 		if (this.validateContacts()) {
-			this.events.emit('contacts:ready', this.contacts);
+			this.events.emit('contacts:ready', this.order);
 		}
 	}
 
 	validateContacts() {
 		const errors: typeof this.formErrorsContacts = {};
 
-		if (!this.contacts.email) {
+		if (!this.order.email) {
 			errors.email = 'Необходимо указать email';
 		}
-		if (!this.contacts.phone) {
+		if (!this.order.phone) {
 			errors.phone = 'Необходимо указать телефон';
 		}
 		this.formErrorsContacts = errors;
@@ -107,11 +102,13 @@ export class AppState extends ProductItem {
 		if (item.status === 'sell' && item.price !== null) {
 			this.basketList.push(item);
 			item.status = 'basket';
-			item.itemCount = this.getBasketList().length;
+			item.itemCount = this.basketList.length;
+			this.emitChanges('basket:changed', this.basketList);
 		} else if (item.status === 'basket') {
 			this.basketList = this.basketList.filter((it) => it !== item);
 			item.status = 'sell';
-			item.itemCount = this.getBasketList().length;
+			item.itemCount = this.basketList.length;
+			this.emitChanges('basket:changed', this.basketList);
 		}
 	}
 

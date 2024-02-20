@@ -20,15 +20,9 @@ export interface ICardActions {
 }
 
 // Карточка товара
-export interface ICard {
-	id: string;
-	description: string;
-	image: string;
-	title: string;
-	category: string;
-	price: number | null;
+export interface ICard extends IProductItem {
 	buttonText: string;
-	itemCount: number | null;
+	itemCount: number | string;
 }
 
 // Содержание модального окна
@@ -62,8 +56,9 @@ export interface IContactsForm {
 }
 
 // Список товаров
-export interface IOrder extends IOrderForm {
-	items: IProductItem[];
+export interface IOrder extends IOrderForm, IContactsForm {
+	total: number | string;
+	items: string[];
 }
 
 export interface IContacts extends IContactsForm {
@@ -83,3 +78,6 @@ export interface ISuccess {
 	id: string;
 	total: number;
 }
+
+export type FormErrorsOrder = Partial<Record<keyof IOrder, string>>;
+export type FormErrorsContacts = Partial<Record<keyof IContacts, string>>;

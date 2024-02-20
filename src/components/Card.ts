@@ -1,4 +1,5 @@
 import { ICard, ICardActions } from '../types';
+import { categoryColour } from '../utils/constants';
 import { ensureElement } from '../utils/utils';
 import { Component } from './base/Component';
 
@@ -10,21 +11,18 @@ export class Card extends Component<ICard> {
 	protected _description: HTMLElement;
 	protected _buttonText: string;
 	protected _button: HTMLButtonElement;
+	protected _index: HTMLElement;
 
-	constructor(
-		protected blockName: string,
-		container: HTMLElement,
-		actions?: ICardActions
-	) {
+	constructor(container: HTMLElement, actions?: ICardActions) {
 		super(container);
 
-		this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
-		this._image = container.querySelector(`.${blockName}__image`);
-		this._category = container.querySelector(`.${blockName}__category`);
-		this._price = container.querySelector(`.${blockName}__price`);
-		this._description = container.querySelector(`.${blockName}__text`);
-		this._buttonText = this._buttonText;
-		this._button = container.querySelector(`.${blockName}__button`);
+		this._title = ensureElement<HTMLElement>(`.card__title`, container);
+		this._image = container.querySelector(`.card__image`);
+		this._category = container.querySelector(`.card__category`);
+		this._price = container.querySelector(`.card__price`);
+		this._description = container.querySelector(`.card__text`);
+		this._button = container.querySelector(`.card__button`);
+		this._index = container.querySelector('.basket__item-index');
 
 		if (actions?.onClick) {
 			if (this._button) {
@@ -57,6 +55,7 @@ export class Card extends Component<ICard> {
 
 	set category(value: string) {
 		this.setText(this._category, value);
+		this._category.classList.add(categoryColour[value]);
 	}
 
 	set price(value: number | null) {
@@ -81,17 +80,12 @@ export class Card extends Component<ICard> {
 	set description(value: string) {
 		this.setText(this._description, value);
 	}
-}
 
-export class CatalogItem extends Card {
-	protected _amount: HTMLElement;
-	protected _title: HTMLElement;
-	index: HTMLElement;
+	set index(value: string) {
+		this._index.textContent = value;
+	}
 
-	constructor(container: HTMLElement, actions?: ICardActions) {
-		super('card', container, actions);
-		this._amount = ensureElement<HTMLElement>('.card__price', container);
-		this._title = ensureElement<HTMLElement>('.card__title', container);
-		this.index = container.querySelector('.basket__item-index');
+	get index(): string {
+		return this._index.textContent || '';
 	}
 }

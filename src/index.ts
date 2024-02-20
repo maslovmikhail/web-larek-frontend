@@ -4,10 +4,10 @@ import { Page } from './components/Page';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { EventEmitter } from './components/base/events';
 import { AppState, ProductItem } from './components/AppData';
-import { CatalogItem } from './components/Card';
+import { Card } from './components/Card';
 import { WebLarekAPI } from './components/WebLarekAPI';
 import { API_URL, CDN_URL, PaymentMethods } from './utils/constants';
-import { IContactsForm, IOrderForm } from './types';
+import { IContactsForm, IOrder, IOrderForm } from './types';
 import { Modal } from './components/common/Modal';
 import { Basket } from './components/common/Basket';
 import { Order } from './components/Order';
@@ -21,7 +21,7 @@ const api = new WebLarekAPI(CDN_URL, API_URL);
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
-const cardBasket = ensureElement<HTMLTemplateElement>('#card-basket');
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const successTemplate = ensureElement<HTMLTemplateElement>('#success');
@@ -43,7 +43,7 @@ const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
 // Вывод каталога товаров на главную страницу
 events.on('catalog:install', () => {
 	page.catalog = appData.catalog.map((item) => {
-		const card = new CatalogItem(cloneTemplate(cardCatalogTemplate), {
+		const card = new Card(cloneTemplate(cardCatalogTemplate), {
 			onClick: () => events.emit('card:select', item),
 		});
 		return card.render({
@@ -57,7 +57,7 @@ events.on('catalog:install', () => {
 
 // Открыть карточку товара
 events.on('card:select', (item: ProductItem) => {
-	const card = new CatalogItem(cloneTemplate(cardPreviewTemplate), {
+	const card = new Card(cloneTemplate(cardPreviewTemplate), {
 		// Удалить или добавить товар в корзину
 		onClick: () => {
 			events.emit('item:toggle', item);
@@ -89,47 +89,49 @@ events.on('modal:close', () => {
 
 // Открытие корзины
 events.on('basket:open', () => {
-	basket.items = appData.getBasketList().map((item) => {
-		const card = new CatalogItem(cloneTemplate(cardBasket), {
+	basket.items = appData.getBasketList().map((item, index) => {
+		const card = new Card(cloneTemplate(cardBasketTemplate), {
 			onClick: () => {
 				events.emit('item:toggle', item);
 			},
 		});
-		card.index.textContent = item.itemCount.toString();
+		card.index = (index + 1).toString();
 		return card.render({
 			title: item.title,
 			price: item.price,
-			itemCount: item.itemCount,
 		});
 	});
 	page.counter = appData.getBasketList().length;
 	basket.selected = appData.getBasketList();
 	basket.total = appData.getTotal();
+	appData.order.total = appData.getTotal();
 	return modal.render({
 		content: basket.render(),
 	});
 });
 
 // Удаление из корзины
-let isRemovingItem = false;
 events.on('item:toggle', (item: ProductItem) => {
-	if (!isRemovingItem) {
-		isRemovingItem = true;
-		appData.toggleBasketList(item);
-		basket.items = appData.getBasketList().map((item) => {
-			const card = new CatalogItem(cloneTemplate(cardBasket));
-			card.index.textContent = item.itemCount.toString();
-			return card.render({
-				title: item.title,
-				price: item.price,
-				itemCount: item.itemCount,
-			});
+	appData.toggleBasketList(item);
+
+	page.counter = appData.getBasketList().length;
+});
+
+// Изменилось состояние корзины
+events.on('basket:changed', (items: ProductItem[]) => {
+	basket.items = items.map((item, index) => {
+		const card = new Card(cloneTemplate(cardBasketTemplate), {
+			onClick: () => {
+				events.emit('item:toggle', item);
+			},
 		});
-		page.counter = appData.getBasketList().length;
-		basket.selected = appData.getBasketList();
-		basket.total = appData.getTotal();
-		isRemovingItem = false;
-	}
+		card.index = (index + 1).toString();
+		return card.render({
+			title: item.title,
+			price: item.price,
+		});
+	});
+	basket.total = appData.getTotal();
 });
 
 // Форма заказа
@@ -139,7 +141,6 @@ events.on('order:open', () => {
 			address: '',
 			valid: false,
 			errors: [],
-			// payment: 'online'
 		}),
 	});
 });
@@ -161,13 +162,13 @@ events.on(
 );
 
 // Изменилось состояние валидации формы заказа
-events.on('formErrorsOrder:change', (errors: Partial<IOrderForm>) => {
+events.on('formErrorsOrder:change', (errors: Partial<IOrder>) => {
 	const { address } = errors;
 	order.valid = !address;
 	order.errors = Object.values({ address }).filter(Boolean).join('; ');
 });
 
-// Форма контактов
+// Отправка формы доставки
 events.on('order:submit', () => {
 	modal.render({
 		content: contacts.render({
@@ -177,6 +178,7 @@ events.on('order:submit', () => {
 			errors: [],
 		}),
 	});
+	appData.order.items = appData.basketList.map((item) => item.id);
 });
 
 // Изменилось одно из полей формы контактов
@@ -188,26 +190,33 @@ events.on(
 );
 
 // Изменилось состояние валидации формы контактов
-events.on('formErrorsContacts:change', (errors: Partial<IContactsForm>) => {
+events.on('formErrorsContacts:change', (errors: Partial<IOrder>) => {
 	const { email, phone } = errors;
 	contacts.valid = !email && !phone;
 	contacts.errors = Object.values({ email, phone }).filter(Boolean).join('; ');
 });
 
-// Окно завершения оплаты
+// Завершения оплаты
 events.on('contacts:submit', () => {
-	const success = new Success(cloneTemplate(successTemplate), {
-		onClick: () => {
-			modal.close();
+	api
+		.orderResult(appData.order)
+		.then((result) => {
 			appData.clearBasket();
-			basket.items = [];
 			page.counter = appData.getBasketList().length;
-		},
-	});
-	modal.render({
-		content: success.render({}),
-	});
-	success.total = `Списано ${appData.getTotal()}`;
+			const success = new Success(cloneTemplate(successTemplate), {
+				onClick: () => {
+					modal.close();
+				},
+			});
+			success.total = result.total;
+
+			modal.render({
+				content: success.render({}),
+			});
+		})
+		.catch((err) => {
+			console.error(err);
+		});
 });
 
 // Получаем каталог товаров с сервера

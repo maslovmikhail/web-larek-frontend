@@ -94,12 +94,6 @@ interface ICardActions {
 
 ```
 interface ICard {
-	id: string;
-	description: string;
-	image: string;
-	title: string;
-	category: string;
-	price: number | null;
 	buttonText: string;
 	itemCount: number | null;
 }
@@ -111,7 +105,7 @@ interface ICard {
 Описывает содержание модального окна.
 
 ```
-export interface IModalData {
+interface IModalData {
 	content: HTMLElement;
 }
 
@@ -154,16 +148,6 @@ interface IOrderForm {
 
 ```
 
-## Интерфейс IOrder расширяет интерфейс IOrderForm.
-
-```
-
-interface IOrder extends IOrderForm {
-	items: IProductItem[];
-}
-
-```
-
 ## Интерфейс IContactsForm.
 
 Описывает контакты покупателя.
@@ -172,6 +156,17 @@ interface IOrder extends IOrderForm {
 interface IContactsForm {
 	email: string;
 	phone: string;
+}
+
+```
+
+## Интерфейс IOrder расширяет интерфейс IOrderForm.
+
+```
+
+interface IOrder extends IOrderForm, IContactsForm {
+	total: number | string;
+	items: string[];
 }
 
 ```
@@ -240,7 +235,6 @@ interface ISuccess {
 - get(uri: string) - получить ответ с сервера.
 - post(uri: string, data: object, method: ApiPostMethods = 'POST') - отправить данные на сервер.
 
-
 # View - компоненты представления
 
 ## Класс Card
@@ -248,18 +242,16 @@ interface ISuccess {
 Класс для создания карточки товара. Наследует класс Component. Содержит сеттеры и геттеры:
 
 - set id(value: string) - установить id товара.
+- get id(): string - получить id товара.
 - set title(value: string) - установить название товара.
+- get title(): string - получить название товара.
 - set image(value: string) - установить url изображения товара.
 - set category(value: string) - установить категорию товара.
 - set price(value: number | null) - установить цену товара.
 - set buttonText(status: string) - установить текст кнопки в карточке товара.
 - set description(value: string) - установить описание товара.
-- get id(): string - получить id товара.
-- get title(): string - получить название товара.
-
-## Класс CatalogItem
-
-Класс отображения отдельной карточки товара в каталоге на главной странице, в модальном окне и в списке корзины. Наследует класс Card.
+- set index(value: string) - установить индекс товара.
+- get index(): string - получить индекс товара.
 
 ## Класс Form<T>
 
@@ -354,7 +346,6 @@ class ProductItem extends Model<IProductItem> {
 - clearBasket() - очистить корзину.
 - getTotal() - получить общую сумму заказа.
 - setCatalog(items: IProductItem[]) - установить список товаров.
-- setPreview(item: IProductItem) - установить детальную информацию о товаре.
 - setOrderField(field: keyof IOrderForm, value: string) - отслеживать изменения полей заказа.
 - validateOrder() - валидация полей заказа.
 - setContactsField(field: keyof IContactsForm, value: string) - отслеживать изменения полей контактной информации.
@@ -369,7 +360,25 @@ class ProductItem extends Model<IProductItem> {
 Содержит метод:
 
 - getProductList(): Promise<IProductItem[]> - получить список товаров с сервера.
+- orderResult(order: IOrder): Promise<ISuccess> - отправить результат заказа.
 
 # Presenter
 
 Код описывающий взаимодействие отображения и данных между собой находится в файле src/index.ts.
+
+// Список основных событий
+catalog:install - вывод каталога товаров на главную страницу.
+card:select - выбор карточки из каталога.
+item:toggle - удаление / добавление товара в корзину.
+modal:open - открытие модального окна.
+modal:close - закрытие модального окна.
+basket:open - открытие корзины.
+basket:changed - изменение состояния корзины.
+order:open - открытие формы заказа.
+payment:toggle - смена способа оплаты.
+/^order\.._:change/ - изменение поля формы заказа.
+formErrorsOrder:change - изменилось состояние валидации формы заказа.
+order:submit - отправка формы доставки.
+/^contacts\.[^:]_:change/ - изменилось одно из полей формы контактов.
+formErrorsContacts:change - изменилось состояние валидации формы контактов.
+contacts:submit - завершения оплаты.

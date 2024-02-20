@@ -7,7 +7,8 @@ import { IBasketView } from '../../types';
 export class Basket extends Component<IBasketView> {
 	protected _list: HTMLElement;
 	protected _total: HTMLElement;
-	protected _button: HTMLElement;
+	protected _button: HTMLButtonElement;
+	protected _buttonDelete: HTMLButtonElement;
 
 	constructor(container: HTMLElement, protected events: EventEmitter) {
 		super(container);
@@ -15,10 +16,15 @@ export class Basket extends Component<IBasketView> {
 		this._list = ensureElement<HTMLElement>('.basket__list', this.container);
 		this._total = this.container.querySelector('.basket__price');
 		this._button = this.container.querySelector('.basket__button');
+		this._buttonDelete = this.container.querySelector('.basket__item-delete');
 
 		if (this._button) {
 			this._button.addEventListener('click', () => {
 				events.emit('order:open');
+			});
+		} else if (this._buttonDelete) {
+			this._buttonDelete.addEventListener('click', () => {
+				events.emit('item:toggle');
 			});
 		}
 
@@ -46,6 +52,6 @@ export class Basket extends Component<IBasketView> {
 	}
 
 	set total(total: number | string) {
-		this.setText(this._total, total);
+		this.setText(this._total, `${total} синапсов`);
 	}
 }
